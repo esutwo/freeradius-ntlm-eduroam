@@ -1,0 +1,15 @@
+version: '2'
+services:
+  eduroam-radius:
+    image: esutwo/freeradius-ntlm:3.0.19-0
+    # uncomment this line for debug
+    command: freeradius -X
+    env_file: .env
+    build:
+      dockerfile: Dockerfile
+      context: .
+    #volumes:
+    #  - "./extension-examples/eduroam-vlans/default:/etc/freeradius/sites-enabled/default"
+    ports:
+      - 1812:1812/udp
+      - 1813:1813/udp
