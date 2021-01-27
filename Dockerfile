@@ -8,8 +8,9 @@ RUN apt-get update -y && \
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# Allow freerad to access winbind socket
-RUN usermod -aG winbindd_priv freerad
+# Allow freerad to access winbind socket & Enable Status
+RUN usermod -aG winbindd_priv freerad && \
+    ln -s /etc/freeradius/sites-available/status /etc/freeradius/sites-enabled/status
 
 COPY configs/clients.conf /etc/freeradius/clients.conf
 COPY configs/proxy.conf /etc/freeradius/proxy.conf
@@ -21,3 +22,4 @@ RUN chmod +x /usr/local/bin/init.sh
 ENTRYPOINT ["/usr/local/bin/init.sh"]
 
 CMD ["freeradius"]
+
