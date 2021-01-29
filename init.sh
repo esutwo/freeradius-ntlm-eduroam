@@ -144,6 +144,12 @@ sed -i '/ntlm_auth\ \=\ /s/^#//g' /etc/freeradius/mods-available/mschap
 sed -i '/ntlm_auth_/s/^#//g' /etc/freeradius/mods-available/mschap
 
 echo --------------------------------------------------
+echo 'Configuring FreeRADIUS: radiusd.conf'
+echo --------------------------------------------------
+# enable auth logging ;)
+sed -i 's/^\s*auth\ =\ no/auth\ =\ yes/g' etc/freeradius/radiusd.conf
+
+echo --------------------------------------------------
 echo 'Configuring FreeRADIUS: certificates'
 echo --------------------------------------------------
 

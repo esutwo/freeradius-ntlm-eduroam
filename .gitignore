@@ -1,3 +1,5 @@
 .env
 certs/*
 !certs/.gitkeep
+logs/
+docker-compose.override.yml

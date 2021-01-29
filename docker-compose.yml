@@ -1,15 +1,30 @@
-version: '2'
+version: '3.7'
 services:
   eduroam-radius:
     image: esutwo/freeradius-ntlm:3.0.19-0
-    # uncomment this line for debug
-    command: freeradius -X
+    ## uncomment this line for debug
+    #command: freeradius -X
+    hostname: freerad-docker
     env_file: .env
     build:
       dockerfile: Dockerfile
       context: .
-    #volumes:
-    #  - "./extension-examples/eduroam-vlans/default:/etc/freeradius/sites-enabled/default"
     ports:
       - 1812:1812/udp
       - 1813:1813/udp
+    volumes:
+      - "./extension-examples/eduroam-vlans/default:/etc/freeradius/sites-enabled/default"
+      - "./logs:/var/log/freeradius"
+      - "./certs:/certs:ro"
+    ## optionally set DNS Servers
+    #dns:
+    #  - 192.168.1.1
+    #  - 192.168.1.2
+
+  ## Optionally Enable Prometheus Exporter
+  ## (needs to share network namespace)
+  #freeradius-exporter:
+    #image: esutwo/freeradius-exporter:latest
+    #network_mode: service:eduroam-radius
+    #ports:
+    #  - 9812:9812
