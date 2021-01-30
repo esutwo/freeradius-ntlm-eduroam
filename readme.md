@@ -32,6 +32,7 @@ Many default configs have been edited in this container in order to supply some 
 
 ## Based off the following projects:
 
+* [FreeRADIUS Community Docs](https://networkradius.com/doc/current/index.html)
 * [Docker-Samba-Join-AD](https://github.com/fjudith/docker-samba-join-ad/)
 * [FreeRADIUS AD Setup](https://xenomorph.net/linux/ubuntu/misc/radius-unifi/)
 * [FreeRADIUS eduroam Setup](https://wiki.freeradius.org/guide/eduroam)

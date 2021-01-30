@@ -103,6 +103,7 @@ echo --------------------------------------------------
 echo 'Configuring FreeRADIUS: clients.conf'
 echo --------------------------------------------------
 
+["$FR_CLIENT_NAME"] && sed -i "s|user_defined_client|$FR_CLIENT_NAME|g" /etc/freeradius/clients.conf
 sed -i "s|EDUROAM_CLIENT_SERVER|$EDUROAM_CLIENT_SERVER|g" /etc/freeradius/clients.conf
 sed -i "s|EDUROAM_CLIENT_SECRET|$EDUROAM_CLIENT_SECRET|g" /etc/freeradius/clients.conf
 sed -i "s|ACCESS_ALLOWED_CIDR|$FR_ACCESS_ALLOWED_CIDR|g" /etc/freeradius/clients.conf

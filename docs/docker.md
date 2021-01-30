@@ -18,6 +18,7 @@ To configure this container, you will need to use environment variables. The fol
 
 | Env Var                | Required (Y/N) | Default / Example             | Description |
 | ---------------------- | -------------- | ----------------------------- | ----------- |
+| FR_CLIENT_NAME         | N              | Example: `wireless`           | Optionally change the shortname of a client. No spaces allowed. |
 | FR_ACCESS_ALLOWED_CIDR | Y              | Example: `192.168.0.1/24`     | The allowed subnet for your default client |
 | FR_SHARED_SECRET       | Y              | Example: `randomsecret`       | Default client's secret |
 | FR_DOMAIN              | Y              | Example: `example.com`        | Your local realm - this is used in `proxy.conf` file |
@@ -33,12 +34,7 @@ To configure this container, you will need to use environment variables. The fol
 | EDUROAM_FLR2_SECRET    | N              | Example: `randomsecret`       | Secret for the eduroam realm. Required if `EDUROAM_FLR2_IPADDR` is set |
 | EDUROAM_CLIENT_SERVER  | Y              | Example: `tlrs1.example.net`  | Domain / IP for the eduroam client | 
 | EDUROAM_CLIENT_SECRET  | Y              | Example: `randomsecret`       | Secret for eduroam client |
-
-#### Optional ENV Vars
-
-| Env Var | Description |
-| ------- | ----------- |
-| DEBUG | When set, debug output for the script will be enabled. _NOTE_: This will send your AD_PASSWORD to STDOUT |
+| DEBUG                  | N              | Example: `1`                  | When set to anything, debug output for the script will be enabled. _NOTE_: This will send your AD_PASSWORD to STDOUT |
 
 ### Certificates
 
