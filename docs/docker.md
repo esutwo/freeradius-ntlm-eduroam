@@ -26,9 +26,11 @@ To configure this container, you will need to use environment variables. The fol
 | AD_SERVER              | Y              | Example: `ad1.ad.example.com` | The default AD server to talk to |
 | AD_USERNAME            | Y              | Example: `test`               | Username for a user with permission to create new computer objects in AD - **DO NOT USE A DOMAIN ADMIN ACCOUNT** |
 | AD_PASSWORD            | Y              | Example: `password`           | Password for a user with permission to create new computer objects in AD - **DO NOT USE A DOMAIN ADMIN ACCOUNT** |
-| EDUROAM_AUTHHOST       | Y              | Example: `tlrs1.example.net`  | Authorization domain / IP for the eduroam / default realm |
-| EDUROAM_ACCTHOST       | Y              | Example: `tlrs1.example.net`  | Accounting domain / IP for the eduroam / default realm |
-| EDUROAM_SECRET         | Y              | Example: `randomsecret`       | Secret for the eduroam realm |
+| ENABLE_EDUROAM         | N              | Default: `FALSE` Ex: `TRUE`   | When set to `TRUE`, it enabled the DEFAULT realm pointing to the EDUROAM FLRs defined below |
+| EDUROAM_FLR1_IPADDR    | N              | Example: `tlrs1.example.net`  | IP / hostname for the eduroam default realm. Required if `ENABLE_EDUROAM` is set to true |
+| EDUROAM_FLR2_IPADDR    | N              | Example: `tlrs2.example.net`  | Second IP / hostname for the eduroam default realm |
+| EDUROAM_FLR1_SECRET    | N              | Example: `randomsecret`       | Secret for the eduroam realm. Required if `ENABLE_EDUROAM` is set to true |
+| EDUROAM_FLR2_SECRET    | N              | Example: `randomsecret`       | Secret for the eduroam realm. Required if `EDUROAM_FLR2_IPADDR` is set |
 | EDUROAM_CLIENT_SERVER  | Y              | Example: `tlrs1.example.net`  | Domain / IP for the eduroam client | 
 | EDUROAM_CLIENT_SECRET  | Y              | Example: `randomsecret`       | Secret for eduroam client |
 

@@ -15,12 +15,19 @@ echo --------------------------------------------------
 [ -z "$FR_SHARED_SECRET" ] && echo "FR_SHARED_SECRET env variable not defined! Exiting..." && exit 1
 [ -z "$FR_DOMAIN" ] && echo "DOMAIN env variable not defined! Exiting..." && exit 1
 
-# Check for eduroam Params
-[ -z "$EDUROAM_CLIENT_SERVER" ] && echo "EDUROAM_CLIENT_SERVER env variable not defined! Exiting..." && exit 1
-[ -z "$EDUROAM_CLIENT_SECRET" ] && echo "EDUROAM_CLIENT_SECRET env variable not defined! Exiting..." && exit 1
-[ -z "$EDUROAM_AUTHHOST" ] && echo "EDUROAM_AUTHHOST env variable not defined! Exiting..." && exit 1
-[ -z "$EDUROAM_ACCTHOST" ] && echo "EDUROAM_ACCTHOST env variable not defined! Exiting..." && exit 1
-[ -z "$EDUROAM_SECRET" ] && echo "EDUROAM_SECRET env variable not defined! Exiting..." && exit 1
+# Check for optional eduroam Params
+if [ "${ENABLE_EDUROAM^^}" == "TRUE" ]; then
+    [ -z "$EDUROAM_FLR1_IPADDR" ] && echo "EDUROAM_FLR1_IPADDR env variable not defined! Exiting..." && exit 1
+    [ -z "$EDUROAM_FLR1_SECRET" ] && echo "EDUROAM_FLR1_SECRET env variable not defined! Exiting..." && exit 1
+    
+    # optionally check for FLR2
+    if [ "$EDUROAM_FLR2_IPADDR" ]; then
+        [ -z "$EDUROAM_FLR2_SECRET" ] && echo "EDUROAM_FLR2_SECRET env variable not defined! Exiting..." && exit 1
+    fi
+
+    [ -z "$EDUROAM_CLIENT_SERVER" ] && echo "EDUROAM_CLIENT_SERVER env variable not defined! Exiting..." && exit 1
+    [ -z "$EDUROAM_CLIENT_SECRET" ] && echo "EDUROAM_CLIENT_SECRET env variable not defined! Exiting..." && exit 1
+fi
 
 # Check for LDAP Params
 #[ -z "$LDAP_PASSWORD" ] && echo "LDAP_PASSWORD env variable not defined! Exiting..." && exit 1
@@ -106,11 +113,23 @@ echo 'Configuring FreeRADIUS: proxy.conf'
 echo --------------------------------------------------
 
 sed -i "s|REALM_DOMAIN_NAME|$FR_DOMAIN|g" /etc/freeradius/proxy.conf
-sed -i "s|AD_WORKGROUP|${AD_WORKGROUP^^}|g" /etc/freeradius/proxy.conf
+
 ## eduroam
-sed -i "s|EDUROAM_AUTHHOST|$EDUROAM_AUTHHOST|g" /etc/freeradius/proxy.conf
-sed -i "s|EDUROAM_ACCTHOST|$EDUROAM_ACCTHOST|g" /etc/freeradius/proxy.conf
-sed -i "s|EDUROAM_SECRET|$EDUROAM_SECRET|g" /etc/freeradius/proxy.conf
+if [ "${ENABLE_EDUROAM^^}" == "TRUE" ]; then
+    echo "Enabling eduroam Config..."
+    sed -i '/realm\ DEFAULT/s/^#//g' /etc/freeradius/proxy.conf
+    sed -i '/auth_pool/s/^#//g' /etc/freeradius/proxy.conf
+    sed -i '/nostrip/s/^#//g' /etc/freeradius/proxy.conf
+    sed -i '/\}/s/^#//g' /etc/freeradius/proxy.conf
+
+    sed -i "s|EDUROAM_FLR1_IPADDR|$EDUROAM_FLR1_IPADDR|g" /etc/freeradius/proxy.conf
+    sed -i "s|EDUROAM_FLR1_SECRET|$EDUROAM_FLR1_SECRET|g" /etc/freeradius/proxy.conf
+    if [ "$EDUROAM_FLR2_IPADDR" ]; then
+        sed -i '/eduroam_flr_server_2/s/^#//g' /etc/freeradius/proxy.conf
+        sed -i "s|EDUROAM_FLR2_IPADDR|$EDUROAM_FLR2_IPADDR|g" /etc/freeradius/proxy.conf
+        sed -i "s|EDUROAM_FLR2_SECRET|$EDUROAM_FLR2_SECRET|g" /etc/freeradius/proxy.conf
+    fi
+fi
 
 #echo --------------------------------------------------
 #echo 'Configuring FreeRADIUS: mods-available/ldap'
@@ -181,6 +200,7 @@ echo --------------------------------------------------
 unset AD_PASSWORD
 unset FR_SHARED_SECRET
 unset EDUROAM_CLIENT_SECRET
-unset EDUROAM_SECRET
+unset EDUROAM_FLR1_SECRET
+unset EDUROAM_FLR2_SECRET
 
 /docker-entrypoint.sh "$@"
