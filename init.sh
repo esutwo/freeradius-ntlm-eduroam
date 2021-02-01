@@ -118,41 +118,29 @@ sed -i "s|REALM_DOMAIN_NAME|$FR_DOMAIN|g" /etc/freeradius/proxy.conf
 ## eduroam
 if [ "${ENABLE_EDUROAM^^}" == "TRUE" ]; then
     echo "Enabling eduroam Config..."
-    sed -i '/realm\ DEFAULT/s/^#//g' /etc/freeradius/proxy.conf
-    sed -i '/auth_pool/s/^#//g' /etc/freeradius/proxy.conf
-    sed -i '/nostrip/s/^#//g' /etc/freeradius/proxy.conf
-    sed -i '/\}/s/^#//g' /etc/freeradius/proxy.conf
+    LINESTART=$(grep -nr "realm DEFAULT {" /etc/freeradius/proxy.conf | cut -d : -f1 )
+    if [ "$LINESTART" ]; then
+        LINEEND=$((LINESTART+3))
+        sed -i "${LINESTART},${LINEEND} s/# *//" /etc/freeradius/proxy.conf
+        unset LINESTART
+        unset LINEEND
+    fi
 
     sed -i "s|EDUROAM_FLR1_IPADDR|$EDUROAM_FLR1_IPADDR|g" /etc/freeradius/proxy.conf
     sed -i "s|EDUROAM_FLR1_SECRET|$EDUROAM_FLR1_SECRET|g" /etc/freeradius/proxy.conf
     if [ "$EDUROAM_FLR2_IPADDR" ]; then
+        LINESTART=$(grep -nr "home_server eduroam_flr_server_2" /etc/freeradius/proxy.conf | cut -d : -f1 )
+        if [ "$LINESTART" ]; then
+            LINEEND=$((LINESTART+8))
+            sed -i "${LINESTART},${LINEEND} s/# *//" /etc/freeradius/proxy.conf
+            unset LINESTART
+            unset LINEEND
+        fi
         sed -i '/eduroam_flr_server_2/s/^#//g' /etc/freeradius/proxy.conf
         sed -i "s|EDUROAM_FLR2_IPADDR|$EDUROAM_FLR2_IPADDR|g" /etc/freeradius/proxy.conf
         sed -i "s|EDUROAM_FLR2_SECRET|$EDUROAM_FLR2_SECRET|g" /etc/freeradius/proxy.conf
     fi
 fi
-
-#echo --------------------------------------------------
-#echo 'Configuring FreeRADIUS: mods-available/ldap'
-#echo --------------------------------------------------
-
-## ldap
-#sed -i "s|LDAP_SERVER|$LDAP_SERVER|g" /etc/freeradius/mods-available/ldap
-#sed -i "s|LDAP_PASSWORD|$LDAP_PASSWORD|g" /etc/freeradius/mods-available/ldap
-#sed -i "s|LDAP_USERNAME|$LDAP_USERNAME|g" /etc/freeradius/mods-available/ldap
-#sed -i "s|LDAP_BASE_DN|$LDAP_BASE_DN|g" /etc/freeradius/mods-available/ldap
-#sed -i "s|LDAP_GROUP_CLASS|$LDAP_GROUP_CLASS|g" /etc/freeradius/mods-available/ldap
-#sed -i "s|LDAP_IDENTIFIER|$LDAP_IDENTIFIER|g" /etc/freeradius/mods-available/ldap
-
-# Handle the certs
-#if test -v LDAP_CERTS; then
-#	cp /certs/ldap-client.key /etc/freeradius/certs/ldap-client.key
-#	cp /certs/ldap-client.crt /etc/freeradius/certs/ldap-client.crt
-#	chown freerad:freerad /etc/freeradius/certs/ldap-client*
-#	chmod 640 /etc/freeradius/certs/ldap-client*
-#	sed -i '/#.*certificate_file/s/^#//g' /etc/freeradius/mods-available/ldap
-#	sed -i '/#.*private_key_file/s/^#//g' /etc/freeradius/mods-available/ldap
-#fi
 
 echo --------------------------------------------------
 echo 'Configuring FreeRADIUS: mods-available/mschap'
@@ -168,6 +156,15 @@ echo 'Configuring FreeRADIUS: radiusd.conf'
 echo --------------------------------------------------
 # enable auth logging ;)
 sed -i 's/^\s*auth\ =\ no/auth\ =\ yes/g' etc/freeradius/radiusd.conf
+
+echo --------------------------------------------------
+echo 'Configuring FreeRADIUS: logfiles'
+echo --------------------------------------------------
+# make sure loglines exist with appropriate permissions
+touch /var/log/freeradius/linelog-access
+touch /var/log/freeradius/linelog-accounting
+chmod 644 /var/log/freeradius/linelog-access
+chmod 644 /var/log/freeradius/linelog-accounting
 
 echo --------------------------------------------------
 echo 'Configuring FreeRADIUS: certificates'
