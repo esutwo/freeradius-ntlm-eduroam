@@ -10,10 +10,14 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Allow freerad to access winbind socket & Enable Status
 RUN usermod -aG winbindd_priv freerad && \
-    ln -s /etc/freeradius/sites-available/status /etc/freeradius/sites-enabled/status
+    ln -s /etc/freeradius/sites-available/status /etc/freeradius/sites-enabled/status && \
+    echo "rest {}" > /etc/freeradius/mods-enabled/rest
 
 COPY configs/clients.conf /etc/freeradius/clients.conf
 COPY configs/proxy.conf /etc/freeradius/proxy.conf
+COPY configs/default /etc/freeradius/site-enabled/default
+COPY configs/inner-tunnel /etc/freeradius/site-enabled/inner-tunnel
+COPY configs/linelog /etc/freeradius/mods-enabled/linelog
 COPY dictionary-files/dictionary.fortinet /usr/share/freeradius/dictionary.fortinet
 COPY dictionary-files/dictionary.eduroam /etc/freeradius/dictionary
 COPY configs/smb.conf /etc/samba/smb.conf

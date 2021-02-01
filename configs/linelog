@@ -1,0 +1,40 @@
+linelog {
+    filename = ${logdir}/linelog-access
+    permissions = 0664
+    reference = "messages.%{session-state:Tmp-String-1}"
+    messages {
+
+		request = "{\"Datetime\": \"%T\", \"Module\": \"linelog-access\", \"Packet-Type\": \"Access-Request\", \"User\": \"%{jsonquote:%{User-Name}}\", \"Calling-Station-Id\": \"%{Calling-Station-Id}\", \"Packet-Src-IP\": \"%{%{Packet-Src-IP-Address}:-%{Packet-Src-IPv6-Address}}\", \"NAS-IP\": \"%{%{NAS-IP-Address}:-%{NAS-IPv6-Address}}\", \"NAS-Identifier\": \"%{NAS-Identifier}\", \"NAS-Port\": \"%{NAS-Port}\", \"NAS-Port-Type\": \"%{NAS-Port-Type}\", \"Called-Station-Id\": \"%{Called-Station-Id}\", \"Acct-Session-Id\": \"%{Acct-Session-Id}\", \"Acct-Multi-Session-Id\": \"%{Acct-Multi-Session-Id}\", \"Connect-Info\": \"%{Connect-Info}\", \"Operator-Name\": \"%{Operator-Name}\", \"Eduroam-Proxy\": \"%{Eduroam-Proxy}\", \"Eduroam-SP-Country\": \"%{Eduroam-SP-Country}\"}"
+
+		accept = "{ \"Datetime\": \"%T\", \"Module\": \"linelog-access\", \"Packet-Type\": \"Access-Accept\", \"User\": \"%{jsonquote:%{User-Name}}\", \"Realm\": \"%{Realm}\", \"Calling-Station-Id\": \"%{Calling-Station-Id}\", \"Packet-Src-IP\": \"%{%{Packet-Src-IP-Address}:-%{Packet-Src-IPv6-Address}}\", \"NAS-IP\": \"%{%{NAS-IP-Address}:-%{NAS-IPv6-Address}}\", \"NAS-Identifier\": \"%{NAS-Identifier}\", \"NAS-Port\": \"%{NAS-Port}\", \"NAS-Port-Type\": \"%{NAS-Port-Type}\", \"Called-Station-Id\": \"%{Called-Station-Id}\", \"Acct-Session-Id\": \"%{Acct-Session-Id}\", \"Acct-Multi-Session-Id\": \"%{Acct-Multi-Session-Id}\", \"Connect-Info\": \"%{Connect-Info}\", \"Operator-Name\": \"%{Operator-Name}\", \"Eduroam-Proxy\": \"%{Eduroam-Proxy}\", \"Eduroam-SP-Country\": \"%{Eduroam-SP-Country}\", \"VLAN\": \"%{%{reply:Tunnel-Private-Group-ID}:-0}\" }"
+
+		reject = "{ \"Datetime\": \"%T\", \"Module\": \"linelog-access\", \"Packet-Type\": \"Access-Reject\", \"User\": \"%{jsonquote:%{User-Name}}\", \"Realm\": \"%{Realm}\", \"Calling-Station-Id\": \"%{Calling-Station-Id}\", \"Reject-Cause\": \"%{jsonquote:%{%{session-state:Module-Failure-Message}:-%{Module-Failure-Message}}}\", \"Packet-Src-IP\": \"%{%{Packet-Src-IP-Address}:-%{Packet-Src-IPv6-Address}}\", \"NAS-IP\": \"%{%{NAS-IP-Address}:-%{NAS-IPv6-Address}}\", \"NAS-Identifier\": \"%{NAS-Identifier}\", \"NAS-Port\": \"%{NAS-Port}\", \"NAS-Port-Type\": \"%{NAS-Port-Type}\", \"Called-Station-Id\": \"%{Called-Station-Id}\", \"Acct-Session-Id\": \"%{Acct-Session-Id}\", \"Acct-Multi-Session-Id\": \"%{Acct-Multi-Session-Id}\", \"Connect-Info\": \"%{Connect-Info}\", \"Operator-Name\": \"%{Operator-Name}\", \"Eduroam-Proxy\": \"%{Eduroam-Proxy}\", \"Eduroam-SP-Country\": \"%{Eduroam-SP-Country}\" }"
+
+		challenge = "{\"Datetime\": \"%T\", \"Module\": \"linelog-access\", \"Packet-Type\": \"Access-Challenge\", \"User\": \"%{jsonquote:%{User-Name}}\", \"Calling-Station-Id\": \"%{Calling-Station-Id}\", \"Packet-Src-IP\": \"%{%{Packet-Src-IP-Address}:-%{Packet-Src-IPv6-Address}}\", \"NAS-IP\": \"%{%{NAS-IP-Address}:-%{NAS-IPv6-Address}}\", \"NAS-Identifier\": \"%{NAS-Identifier}\", \"NAS-Port\": \"%{NAS-Port}\", \"NAS-Port-Type\": \"%{NAS-Port-Type}\", \"Called-Station-Id\": \"%{Called-Station-Id}\", \"Acct-Session-Id\": \"%{Acct-Session-Id}\", \"Acct-Multi-Session-Id\": \"%{Acct-Multi-Session-Id}\", \"Connect-Info\": \"%{Connect-Info}\", \"Operator-Name\": \"%{Operator-Name}\", \"Eduroam-Proxy\": \"%{Eduroam-Proxy}\", \"Eduroam-SP-Country\": \"%{Eduroam-SP-Country}\", \"CHAP-Challenge\":\"%{CHAP-Challenge}\"}"
+    }
+}
+
+linelog log_accounting {
+	format = ""
+	filename = ${logdir}/linelog-accounting
+	permissions = 0664
+	reference = "Accounting-Request.%{%{Acct-Status-Type}:-unknown}"
+
+	Accounting-Request {
+
+		Start = "{\"Datetime\": \"%T\", \"Module\": \"linelog-accounting\", \"Acct-Status-Type\": \"%{Acct-Status-Type}\", \"User\": \"%{jsonquote:%{User-Name}}\", \"Calling-Station-Id\": \"%{Calling-Station-Id}\", \"Packet-Src-IP\": \"%{%{Packet-Src-IP-Address}:-%{Packet-Src-IPv6-Address}}\", \"NAS-IP\": \"%{%{NAS-IP-Address}:-%{NAS-IPv6-Address}}\", \"NAS-Identifier\": \"%{NAS-Identifier}\", \"NAS-Port\": \"%{NAS-Port}\", \"NAS-Port-Type\": \"%{NAS-Port-Type}\", \"Called-Station-Id\": \"%{Called-Station-Id}\", \"Acct-Session-Id\": \"%{Acct-Session-Id}\", \"Acct-Multi-Session-Id\": \"%{Acct-Multi-Session-Id}\", \"Acct-Delay-Time\": \"%{Acct-Delay-Time}\", \"Event-Timestamp\":\"%{Event-Timestamp}\"}"
+		
+		Stop = "{\"Datetime\": \"%T\", \"Module\": \"linelog-accounting\", \"Acct-Status-Type\": \"%{Acct-Status-Type}\", \"User\": \"%{jsonquote:%{User-Name}}\", \"Calling-Station-Id\": \"%{Calling-Station-Id}\", \"Packet-Src-IP\": \"%{%{Packet-Src-IP-Address}:-%{Packet-Src-IPv6-Address}}\", \"NAS-IP\": \"%{%{NAS-IP-Address}:-%{NAS-IPv6-Address}}\", \"NAS-Identifier\": \"%{NAS-Identifier}\", \"NAS-Port\": \"%{NAS-Port}\", \"NAS-Port-Type\": \"%{NAS-Port-Type}\", \"Called-Station-Id\": \"%{Called-Station-Id}\", \"Acct-Session-Id\": \"%{Acct-Session-Id}\", \"Acct-Multi-Session-Id\": \"%{Acct-Multi-Session-Id}\", \"Acct-Delay-Time\": \"%{Acct-Delay-Time}\", \"Acct-Terminate-Cause\": \"%{Acct-Terminate-Cause}\", \"Acct-Session-Time\": \"%{Acct-Session-Time}\", \"Event-Timestamp\":\"%{Event-Timestamp}\"}"
+
+		#  Don't log anything for these packets.
+		Alive = ""
+
+		Accounting-On = "{\"Datetime\": \"%T\", \"Module\": \"linelog-accounting\", \"Acct-Status-Type\": \"%{Acct-Status-Type}\", \"User\": \"%{jsonquote:%{User-Name}}\", \"Calling-Station-Id\": \"%{Calling-Station-Id}\", \"Packet-Src-IP\": \"%{%{Packet-Src-IP-Address}:-%{Packet-Src-IPv6-Address}}\", \"NAS-IP\": \"%{%{NAS-IP-Address}:-%{NAS-IPv6-Address}}\", \"NAS-Identifier\": \"%{NAS-Identifier}\", \"NAS-Port\": \"%{NAS-Port}\", \"NAS-Port-Type\": \"%{NAS-Port-Type}\", \"Called-Station-Id\": \"%{Called-Station-Id}\", \"Acct-Session-Id\": \"%{Acct-Session-Id}\", \"Acct-Multi-Session-Id\": \"%{Acct-Multi-Session-Id}\", \"Acct-Delay-Time\": \"%{Acct-Delay-Time}\", \"Event-Timestamp\":\"%{Event-Timestamp}\"}"
+		Accounting-Off = "{\"Datetime\": \"%T\", \"Module\": \"linelog-accounting\", \"Acct-Status-Type\": \"%{Acct-Status-Type}\", \"User\": \"%{jsonquote:%{User-Name}}\", \"Calling-Station-Id\": \"%{Calling-Station-Id}\", \"Packet-Src-IP\": \"%{%{Packet-Src-IP-Address}:-%{Packet-Src-IPv6-Address}}\", \"NAS-IP\": \"%{%{NAS-IP-Address}:-%{NAS-IPv6-Address}}\", \"NAS-Identifier\": \"%{NAS-Identifier}\", \"NAS-Port\": \"%{NAS-Port}\", \"NAS-Port-Type\": \"%{NAS-Port-Type}\", \"Called-Station-Id\": \"%{Called-Station-Id}\", \"Acct-Session-Id\": \"%{Acct-Session-Id}\", \"Acct-Multi-Session-Id\": \"%{Acct-Multi-Session-Id}\", \"Acct-Delay-Time\": \"%{Acct-Delay-Time}\", \"Event-Timestamp\":\"%{Event-Timestamp}\"}"
+
+		Interim-Update = "{\"Datetime\": \"%T\", \"Module\": \"linelog-accounting\", \"Acct-Status-Type\": \"%{Acct-Status-Type}\", \"User\": \"%{jsonquote:%{User-Name}}\", \"Calling-Station-Id\": \"%{Calling-Station-Id}\", \"Packet-Src-IP\": \"%{%{Packet-Src-IP-Address}:-%{Packet-Src-IPv6-Address}}\", \"NAS-IP\": \"%{%{NAS-IP-Address}:-%{NAS-IPv6-Address}}\", \"NAS-Identifier\": \"%{NAS-Identifier}\", \"NAS-Port\": \"%{NAS-Port}\", \"NAS-Port-Type\": \"%{NAS-Port-Type}\", \"Called-Station-Id\": \"%{Called-Station-Id}\", \"Acct-Session-Id\": \"%{Acct-Session-Id}\", \"Acct-Multi-Session-Id\": \"%{Acct-Multi-Session-Id}\", \"Acct-Delay-Time\": \"%{Acct-Delay-Time}\", \"Event-Timestamp\":\"%{Event-Timestamp}\"}"
+
+		# don't log anything for other Acct-Status-Types.
+		#unknown = "%T | Unknown | NAS %{%{Packet-Src-IP-Address}:-%{Packet-Src-IPv6-Address}} (%{%{NAS-IP-Address}:-%{NAS-IPv6-Address}}) sent unknown Acct-Status-Type %{Acct-Status-Type}"
+	}
+}
