@@ -160,11 +160,11 @@ sed -i 's/^\s*auth\ =\ no/auth\ =\ yes/g' etc/freeradius/radiusd.conf
 echo --------------------------------------------------
 echo 'Configuring FreeRADIUS: logfiles'
 echo --------------------------------------------------
-# make sure loglines exist with appropriate permissions
+# make sure linelogs exist with appropriate permissions
 touch /var/log/freeradius/linelog-access
 touch /var/log/freeradius/linelog-accounting
-chmod 644 /var/log/freeradius/linelog-access
-chmod 644 /var/log/freeradius/linelog-accounting
+chmod 664 /var/log/freeradius/linelog-access
+chmod 664 /var/log/freeradius/linelog-accounting
 
 echo --------------------------------------------------
 echo 'Configuring FreeRADIUS: certificates'
