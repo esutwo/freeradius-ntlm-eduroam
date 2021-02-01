@@ -1,0 +1,49 @@
+#================= Filebeat inputs =================
+filebeat.inputs:
+
+# Each – is an input. Most options can be set at the input level, so
+# you can use different inputs for various configurations.
+# Below are the input specific configurations.
+
+- type: log
+
+  # Change to true to enable this input configuration.
+  enabled: true
+
+  # Paths that should be crawled and fetched. Glob based paths.
+  paths:
+    - /var/log/freeradius/linelog-access
+    - /var/log/freeradius/linelog-accounting
+
+  json.keys_under_root: true
+
+  fields:
+    test_id: eduroam
+
+#================= Processors ======================
+
+processors:
+  - dissect:
+      when: 
+        and:
+          - has_fields: ['User']
+          - regexp:
+              User: ".*@.*"
+      tokenizer: "%{username}@%{domain}"
+      field: "User"
+
+#================= Logstash Output =================
+
+output.logstash:
+  # The Logstash hosts
+  hosts: ["${LOGSTASH_HOST:?You need to set the LOGSTASH_HOST environment variable. For ex: 127.0.0.1:5044}"]
+
+  # Optional SSL. By default is off.
+  # List of root certificates for HTTPS server verifications
+  #ssl.certificate_authorities: [“/etc/pki/root/ca.pem”]
+
+  # Certificate for SSL client authentication
+  #ssl.certificate: “/etc/pki/client/cert.pem”
+
+  # Client Certificate Key
+  #ssl.key: “/etc/pki/client/cert.key”

@@ -13,7 +13,7 @@ services:
       - 1812:1812/udp
       - 1813:1813/udp
     volumes:
-      - "./extension-examples/eduroam-vlans/default:/etc/freeradius/sites-enabled/default"
+    #  - "./extension-examples/eduroam-vlans/default:/etc/freeradius/sites-enabled/default"
       - "./logs:/var/log/freeradius"
       - "./certs:/certs:ro"
     ## optionally set DNS Servers
@@ -28,3 +28,12 @@ services:
     #network_mode: service:eduroam-radius
     #ports:
     #  - 9812:9812
+
+  #filebeat:
+  #  image: docker.elastic.co/beats/filebeat-oss:6.8.13
+  #  environment:
+  #    LOGSTASH_HOST: graylog.example.com:5044
+  #  volumes:
+  #    - ./configs/filebeat.yml:/usr/share/filebeat/filebeat.yml
+  #    - ./logs:/var/log/freeradius:ro
+  #  network_mode: service:eduroam-radius
