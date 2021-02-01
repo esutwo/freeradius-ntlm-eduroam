@@ -14,6 +14,8 @@ RUN usermod -aG winbindd_priv freerad && \
 
 COPY configs/clients.conf /etc/freeradius/clients.conf
 COPY configs/proxy.conf /etc/freeradius/proxy.conf
+COPY dictionary-files/dictionary.fortinet /usr/share/freeradius/dictionary.fortinet
+COPY dictionary-files/dictionary.eduroam /etc/freeradius/dictionary
 COPY configs/smb.conf /etc/samba/smb.conf
 COPY init.sh /usr/local/bin
 
