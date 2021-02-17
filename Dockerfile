@@ -13,11 +13,15 @@ RUN usermod -aG winbindd_priv freerad && \
     ln -s /etc/freeradius/sites-available/status /etc/freeradius/sites-enabled/status && \
     echo "rest {}" > /etc/freeradius/mods-enabled/rest
 
+# Config Console Logging
+COPY configs/radiusd.conf /etc/freeradius/radiusd.conf
+
 COPY configs/clients.conf /etc/freeradius/clients.conf
 COPY configs/proxy.conf /etc/freeradius/proxy.conf
 COPY configs/default /etc/freeradius/site-enabled/default
 COPY configs/inner-tunnel /etc/freeradius/site-enabled/inner-tunnel
 COPY configs/linelog /etc/freeradius/mods-enabled/linelog
+COPY configs/mschap /etc/freeradius/mods-enabled/mschap
 COPY dictionary-files/dictionary.fortinet /usr/share/freeradius/dictionary.fortinet
 COPY dictionary-files/dictionary.eduroam /etc/freeradius/dictionary
 COPY configs/smb.conf /etc/samba/smb.conf
@@ -28,4 +32,3 @@ RUN chmod +x /usr/local/bin/init.sh
 ENTRYPOINT ["/usr/local/bin/init.sh"]
 
 CMD ["freeradius"]
-
