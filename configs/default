@@ -36,9 +36,6 @@ listen {
 authorize {
     # update logging
     if (!&session-state:) {
-        update session-state {
-            &Tmp-String-1 := "request"
-        }
         linelog
     }
 	filter_username
@@ -100,10 +97,6 @@ post-auth {
 	exec
 	remove_reply_message_if_eap
 
-    # update logging
-    update session-state {
-        &Tmp-String-1 := "accept"
-    }
     linelog
 
 	Post-Auth-Type REJECT {
@@ -111,17 +104,9 @@ post-auth {
 		attr_filter.access_reject
 		eap
 		remove_reply_message_if_eap
-
-        #update logging config
-        update session-state {
-           &Tmp-String-1 := "reject"
-        }
         linelog
 	}
 	Post-Auth-Type Challenge {
-		update session-state {
-           &Tmp-String-1 := "challenge"
-        }
 		linelog
 	}
 }
