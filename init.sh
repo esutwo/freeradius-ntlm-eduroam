@@ -25,8 +25,12 @@ if [ "${ENABLE_EDUROAM^^}" == "TRUE" ]; then
         [ -z "$EDUROAM_FLR2_SECRET" ] && echo "EDUROAM_FLR2_SECRET env variable not defined! Exiting..." && exit 1
     fi
 
-    [ -z "$EDUROAM_CLIENT_SERVER" ] && echo "EDUROAM_CLIENT_SERVER env variable not defined! Exiting..." && exit 1
-    [ -z "$EDUROAM_CLIENT_SECRET" ] && echo "EDUROAM_CLIENT_SECRET env variable not defined! Exiting..." && exit 1
+    [ -z "$EDUROAM_CLIENT1_SERVER" ] && echo "EDUROAM_CLIENT1_SERVER env variable not defined! Exiting..." && exit 1
+    [ -z "$EDUROAM_CLIENT1_SECRET" ] && echo "EDUROAM_CLIENT1_SECRET env variable not defined! Exiting..." && exit 1
+
+    if [ "$EDUROAM_CLIENT2_SERVER" ]; then
+        [ -z "$EDUROAM_CLIENT2_SECRET" ] && echo "EDUROAM_CLIENT2_SECRET env variable not defined! Exiting..." && exit 1
+    fi
 fi
 
 # Check for LDAP Params
@@ -103,11 +107,25 @@ echo --------------------------------------------------
 echo 'Configuring FreeRADIUS: clients.conf'
 echo --------------------------------------------------
 
-["$FR_CLIENT_NAME"] && sed -i "s|user_defined_client|$FR_CLIENT_NAME|g" /etc/freeradius/clients.conf
-sed -i "s|EDUROAM_CLIENT_SERVER|$EDUROAM_CLIENT_SERVER|g" /etc/freeradius/clients.conf
-sed -i "s|EDUROAM_CLIENT_SECRET|$EDUROAM_CLIENT_SECRET|g" /etc/freeradius/clients.conf
+[ "$FR_CLIENT_NAME" ] && sed -i "s|user_defined_client|$FR_CLIENT_NAME|g" /etc/freeradius/clients.conf
 sed -i "s|ACCESS_ALLOWED_CIDR|$FR_ACCESS_ALLOWED_CIDR|g" /etc/freeradius/clients.conf
 sed -i "s|SHARED_SECRET|$FR_SHARED_SECRET|g" /etc/freeradius/clients.conf
+
+if [ "${ENABLE_EDUROAM^^}" == "TRUE" ]; then
+    sed -i "s|EDUROAM_CLIENT1_SERVER|$EDUROAM_CLIENT1_SERVER|g" /etc/freeradius/clients.conf
+    sed -i "s|EDUROAM_CLIENT1_SECRET|$EDUROAM_CLIENT1_SECRET|g" /etc/freeradius/clients.conf
+    if [ "$EDUROAM_CLIENT2_SERVER" ]; then
+        LINESTART=$(grep -nr "client eduroam-tlrs2" /etc/freeradius/clients.conf | cut -d : -f1 )
+        if [ "$LINESTART" ]; then
+            LINEEND=$((LINESTART+3))
+            sed -i "${LINESTART},${LINEEND} s/# *//" /etc/freeradius/clients.conf
+            unset LINESTART
+            unset LINEEND
+        fi
+        sed -i "s|EDUROAM_CLIENT2_SERVER|$EDUROAM_CLIENT2_SERVER|g" /etc/freeradius/clients.conf
+        sed -i "s|EDUROAM_CLIENT2_SECRET|$EDUROAM_CLIENT2_SECRET|g" /etc/freeradius/clients.conf
+    fi
+fi
 
 echo --------------------------------------------------
 echo 'Configuring FreeRADIUS: proxy.conf'
@@ -120,7 +138,7 @@ if [ "${ENABLE_EDUROAM^^}" == "TRUE" ]; then
     echo "Enabling eduroam Config..."
     LINESTART=$(grep -nr "realm DEFAULT {" /etc/freeradius/proxy.conf | cut -d : -f1 )
     if [ "$LINESTART" ]; then
-        LINEEND=$((LINESTART+3))
+        LINEEND=$((LINESTART+4))
         sed -i "${LINESTART},${LINEEND} s/# *//" /etc/freeradius/proxy.conf
         unset LINESTART
         unset LINEEND
@@ -131,7 +149,7 @@ if [ "${ENABLE_EDUROAM^^}" == "TRUE" ]; then
     if [ "$EDUROAM_FLR2_IPADDR" ]; then
         LINESTART=$(grep -nr "home_server eduroam_flr_server_2" /etc/freeradius/proxy.conf | cut -d : -f1 )
         if [ "$LINESTART" ]; then
-            LINEEND=$((LINESTART+8))
+            LINEEND=$((LINESTART+5))
             sed -i "${LINESTART},${LINEEND} s/# *//" /etc/freeradius/proxy.conf
             unset LINESTART
             unset LINEEND
@@ -141,21 +159,6 @@ if [ "${ENABLE_EDUROAM^^}" == "TRUE" ]; then
         sed -i "s|EDUROAM_FLR2_SECRET|$EDUROAM_FLR2_SECRET|g" /etc/freeradius/proxy.conf
     fi
 fi
-
-echo --------------------------------------------------
-echo 'Configuring FreeRADIUS: mods-available/mschap'
-echo --------------------------------------------------
-
-sed -i "s|/path/to/ntlm_auth|/usr/bin/ntlm_auth|g" /etc/freeradius/mods-available/mschap
-sed -i '/ntlm_auth\ \=\ /s/^#//g' /etc/freeradius/mods-available/mschap
-# enable password change requests
-sed -i '/ntlm_auth_/s/^#//g' /etc/freeradius/mods-available/mschap
-
-echo --------------------------------------------------
-echo 'Configuring FreeRADIUS: radiusd.conf'
-echo --------------------------------------------------
-# enable auth logging ;)
-sed -i 's/^\s*auth\ =\ no/auth\ =\ yes/g' etc/freeradius/radiusd.conf
 
 echo --------------------------------------------------
 echo 'Configuring FreeRADIUS: logfiles'
