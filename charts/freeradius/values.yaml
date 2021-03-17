@@ -55,11 +55,11 @@ environmentVariables:
   #EDUROAM_CLIENT1_SERVER: ""
   #EDUROAM_CLIENT2_SERVER: ""
 
-customConfigMaps:
-  - name: test
-    mountPath: /etc/freeradius/sites-enabled/test
-    content: |
-      # empty file
+customConfigMaps: {}
+  #- name: test
+  #  mountPath: /etc/freeradius/sites-enabled/test
+  #  content: |
+  #    # empty file
 
 imagePullSecrets: []
 nameOverride: ""
