@@ -37,5 +37,5 @@ Many default configs have been edited in this container in order to supply some 
 * [FreeRADIUS AD Setup](https://xenomorph.net/linux/ubuntu/misc/radius-unifi/)
 * [FreeRADIUS eduroam Setup](https://wiki.freeradius.org/guide/eduroam)
 * [FreeRADIUS eduroam Logging](https://wiki.freeradius.org/guide/eduroam-logging)
-* [FreeRADIUS Logging Config](https://www.slideshare.net/MatthewNewton28/freeradius-eduroam-logging-and-elasticsearch)
+* [FreeRADIUS Logging Config](http://freeradius.1045715.n5.nabble.com/auth-and-detail-logs-into-json-format-tp5750035p5750041.html)
 * [FreeRADIUS Prometheus Metrics](https://github.com/bvantagelimited/freeradius_exporter)
