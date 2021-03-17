@@ -10,33 +10,6 @@ echo --------------------------------------------------
 echo "Checking / Setting ENV vars"
 echo --------------------------------------------------
 
-# Check if all env parameters exist
-[ -z "$FR_ACCESS_ALLOWED_CIDR" ] && echo "ACCESS_ALLOWED_CIDR env variable not defined! Exiting..." && exit 1
-[ -z "$FR_SHARED_SECRET" ] && echo "FR_SHARED_SECRET env variable not defined! Exiting..." && exit 1
-[ -z "$FR_DOMAIN" ] && echo "DOMAIN env variable not defined! Exiting..." && exit 1
-
-# Check for optional eduroam Params
-if [ "${ENABLE_EDUROAM^^}" == "TRUE" ]; then
-    [ -z "$EDUROAM_FLR1_IPADDR" ] && echo "EDUROAM_FLR1_IPADDR env variable not defined! Exiting..." && exit 1
-    [ -z "$EDUROAM_FLR1_SECRET" ] && echo "EDUROAM_FLR1_SECRET env variable not defined! Exiting..." && exit 1
-    
-    # optionally check for FLR2
-    if [ "$EDUROAM_FLR2_IPADDR" ]; then
-        [ -z "$EDUROAM_FLR2_SECRET" ] && echo "EDUROAM_FLR2_SECRET env variable not defined! Exiting..." && exit 1
-    fi
-
-    [ -z "$EDUROAM_CLIENT1_SERVER" ] && echo "EDUROAM_CLIENT1_SERVER env variable not defined! Exiting..." && exit 1
-    [ -z "$EDUROAM_CLIENT1_SECRET" ] && echo "EDUROAM_CLIENT1_SECRET env variable not defined! Exiting..." && exit 1
-
-    if [ "$EDUROAM_CLIENT2_SERVER" ]; then
-        [ -z "$EDUROAM_CLIENT2_SECRET" ] && echo "EDUROAM_CLIENT2_SECRET env variable not defined! Exiting..." && exit 1
-    fi
-fi
-
-# Check for LDAP Params
-#[ -z "$LDAP_PASSWORD" ] && echo "LDAP_PASSWORD env variable not defined! Exiting..." && exit 1
-#[ -z "$LDAP_USERNAME" ] && echo "LDAP_USERNAME env variable not defined! Exiting..." && exit 1
-
 # Check for required AD Params
 [ -z "$AD_DOMAIN" ] && echo "AD_DOMAIN env variable not defined! Exiting..." && exit 1
 [ -z "$AD_SERVER" ] && echo "AD_SERVER env variable not defined! Exiting..." && exit 1
@@ -108,12 +81,12 @@ echo 'Configuring FreeRADIUS: clients.conf'
 echo --------------------------------------------------
 
 [ "$FR_CLIENT_NAME" ] && sed -i "s|user_defined_client|$FR_CLIENT_NAME|g" /etc/freeradius/clients.conf
-sed -i "s|ACCESS_ALLOWED_CIDR|$FR_ACCESS_ALLOWED_CIDR|g" /etc/freeradius/clients.conf
-sed -i "s|SHARED_SECRET|$FR_SHARED_SECRET|g" /etc/freeradius/clients.conf
+[ "$FR_ACCESS_ALLOWED_CIDR" ] && sed -i "s|ACCESS_ALLOWED_CIDR|$FR_ACCESS_ALLOWED_CIDR|g" /etc/freeradius/clients.conf
+[ "$FR_SHARED_SECRET" ] && sed -i "s|SHARED_SECRET|$FR_SHARED_SECRET|g" /etc/freeradius/clients.conf
 
 if [ "${ENABLE_EDUROAM^^}" == "TRUE" ]; then
-    sed -i "s|EDUROAM_CLIENT1_SERVER|$EDUROAM_CLIENT1_SERVER|g" /etc/freeradius/clients.conf
-    sed -i "s|EDUROAM_CLIENT1_SECRET|$EDUROAM_CLIENT1_SECRET|g" /etc/freeradius/clients.conf
+    [ "$EDUROAM_CLIENT1_SERVER" ] && sed -i "s|EDUROAM_CLIENT1_SERVER|$EDUROAM_CLIENT1_SERVER|g" /etc/freeradius/clients.conf
+    [ "$EDUROAM_CLIENT1_SECRET" ] && sed -i "s|EDUROAM_CLIENT1_SECRET|$EDUROAM_CLIENT1_SECRET|g" /etc/freeradius/clients.conf
     if [ "$EDUROAM_CLIENT2_SERVER" ]; then
         LINESTART=$(grep -nr "client eduroam-tlrs2" /etc/freeradius/clients.conf | cut -d : -f1 )
         if [ "$LINESTART" ]; then
@@ -123,7 +96,7 @@ if [ "${ENABLE_EDUROAM^^}" == "TRUE" ]; then
             unset LINEEND
         fi
         sed -i "s|EDUROAM_CLIENT2_SERVER|$EDUROAM_CLIENT2_SERVER|g" /etc/freeradius/clients.conf
-        sed -i "s|EDUROAM_CLIENT2_SECRET|$EDUROAM_CLIENT2_SECRET|g" /etc/freeradius/clients.conf
+        [ "$EDUROAM_CLIENT2_SECRET" ] && sed -i "s|EDUROAM_CLIENT2_SECRET|$EDUROAM_CLIENT2_SECRET|g" /etc/freeradius/clients.conf
     fi
 fi
 
@@ -131,7 +104,7 @@ echo --------------------------------------------------
 echo 'Configuring FreeRADIUS: proxy.conf'
 echo --------------------------------------------------
 
-sed -i "s|REALM_DOMAIN_NAME|$FR_DOMAIN|g" /etc/freeradius/proxy.conf
+[ "$FR_DOMAIN" ] && sed -i "s|REALM_DOMAIN_NAME|$FR_DOMAIN|g" /etc/freeradius/proxy.conf
 
 ## eduroam
 if [ "${ENABLE_EDUROAM^^}" == "TRUE" ]; then
@@ -144,8 +117,8 @@ if [ "${ENABLE_EDUROAM^^}" == "TRUE" ]; then
         unset LINEEND
     fi
 
-    sed -i "s|EDUROAM_FLR1_IPADDR|$EDUROAM_FLR1_IPADDR|g" /etc/freeradius/proxy.conf
-    sed -i "s|EDUROAM_FLR1_SECRET|$EDUROAM_FLR1_SECRET|g" /etc/freeradius/proxy.conf
+    [ "$EDUROAM_FLR1_IPADDR" ] && sed -i "s|EDUROAM_FLR1_IPADDR|$EDUROAM_FLR1_IPADDR|g" /etc/freeradius/proxy.conf
+    [ "$EDUROAM_FLR1_SECRET" ] && sed -i "s|EDUROAM_FLR1_SECRET|$EDUROAM_FLR1_SECRET|g" /etc/freeradius/proxy.conf
     if [ "$EDUROAM_FLR2_IPADDR" ]; then
         LINESTART=$(grep -nr "home_server eduroam_flr_server_2" /etc/freeradius/proxy.conf | cut -d : -f1 )
         if [ "$LINESTART" ]; then
@@ -155,8 +128,8 @@ if [ "${ENABLE_EDUROAM^^}" == "TRUE" ]; then
             unset LINEEND
         fi
         sed -i '/eduroam_flr_server_2/s/^#//g' /etc/freeradius/proxy.conf
-        sed -i "s|EDUROAM_FLR2_IPADDR|$EDUROAM_FLR2_IPADDR|g" /etc/freeradius/proxy.conf
-        sed -i "s|EDUROAM_FLR2_SECRET|$EDUROAM_FLR2_SECRET|g" /etc/freeradius/proxy.conf
+        [ "$EDUROAM_FLR2_IPADDR" ] && sed -i "s|EDUROAM_FLR2_IPADDR|$EDUROAM_FLR2_IPADDR|g" /etc/freeradius/proxy.conf
+        [ "$EDUROAM_FLR2_SECRET" ] && sed -i "s|EDUROAM_FLR2_SECRET|$EDUROAM_FLR2_SECRET|g" /etc/freeradius/proxy.conf
     fi
 fi
 
