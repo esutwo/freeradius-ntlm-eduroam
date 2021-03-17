@@ -9,6 +9,7 @@ services:
     build:
       dockerfile: Dockerfile
       context: .
+    restart: always
     ports:
       - 1812:1812/udp
       - 1813:1813/udp
