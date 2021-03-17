@@ -1,0 +1,126 @@
+{{- $name := include "freeradius.fullname" . }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "freeradius.fullname" . }}
+  labels:
+    {{- include "freeradius.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "freeradius.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "freeradius.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "freeradius.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if .Values.pod_hostname }}
+      hostname: {{ .Values.pod_hostname }}
+      {{- end }}
+      {{- if .Values.logger.enabled }}
+      volumes:
+      - name: logs
+        emptyDir: {}
+      - name: filebeat-config
+        configMap:
+          defaultMode: 0640
+          name: filebeat-config
+      {{- end }}
+      {{- if .Values.customConfigMaps }}
+      volumes: 
+      {{- range $key, $value := .Values.customConfigMaps }}
+      - name: {{ $value.name }}-cmv
+        configMap:
+          name: {{ $name }}-files
+          items:
+          - key: {{ $value.name }}
+            path: {{ $value.name }}
+      {{- end }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if .Values.logger.enabled }}
+          volumeMounts:
+          - name: logs
+            mountpath: /var/log/freeradius
+          {{- end }}
+          {{- if .Values.customConfigMaps }}
+          volumeMounts:
+          {{- range $key, $value := .Values.customConfigMaps }}
+          - name: {{ $value.name }}-cmv
+            mountPath: {{ $value.mountPath }}
+          {{- end }}
+          {{- end }}
+          envFrom:
+            - secretRef:
+                name: {{ include "freeradius.fullname" . }}-envSecrets
+            - configMapRef:
+                name: {{ include "freeradius.fullname" . }}-envConfigMap
+          ports:
+            - containerPort: 1812
+              name: radauth-port
+            - containerPort: 1813
+              name: radacc-port
+          resources:
+            {{- toYaml .Values.image.resources | nindent 12 }}
+        {{- if .Values.exporter.enabled }}
+        - name: {{ .Chart.Name }}-exporter
+          image: "{{ .Values.exporter.image.repository }}:{{ .Values.exporter.image.tag }}"
+          imagePullPolicy: {{ .Values.exporter.image.pullPolicy }}
+          ports:
+            - containerPort: 9812
+              name: radexp-port
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: 9812
+          resources:
+            {{- toYaml .Values.exporter.resources | nindent 12 }}
+        {{- end }}
+        {{- if .Values.logger.enabled }}
+        - name: {{ .Chart.Name }}-logger
+          image: "{{ .Values.logger.image.repository }}:{{ .Values.logger.image.tag }}"
+          imagePullPolicy: {{ .Values.logger.image.pullPolicy }}
+          env:
+            - name: LOGSTASH_HOST
+              value: {{ .Values.logger.LOGSTASH_HOST | quote }}
+          volumeMounts:
+            - name: logs
+              mountpath: /var/log/freeradius
+            - name: filebeat-config
+              mountPath: /etc/filebeat.yml
+              readOnly: true
+              subPath: filebeat.yml
+          resources:
+            {{- toYaml .Values.exporter.resources | nindent 12 }}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

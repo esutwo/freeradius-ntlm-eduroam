@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "freeradius.fullname" . }}-envConfigMap
+  labels:
+    {{- include "freeradius.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook-weight": "-1"
+data:
+{{- range $k, $v := .Values.environmentVariables }}
+  {{ $k }}: {{ $v | quote }}
+{{- end }}
+{{- if .Values.customConfigMaps }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "freeradius.fullname" . }}-files
+  labels:
+    {{- include "freeradius.labels" . | nindent 4 }}
+data:
+{{- range $key, $value := .Values.customConfigMaps }}
+  {{ $value.name }}: {{ toYaml $value.content | indent 2 }}
+{{- end }}
+{{- end }}
