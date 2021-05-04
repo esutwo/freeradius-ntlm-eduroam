@@ -24,6 +24,8 @@ image:
 # This hostname will show up in your Active Directory as a Computer Object
 pod_hostname: "kube-freerad1"
 
+#commandOverride: ["freeradius", "-X"]
+
 # Secret Env Vars
 environmentVarSecrets:
   # required...

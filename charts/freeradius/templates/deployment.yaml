@@ -42,14 +42,10 @@ spec:
       {{- end }}
       {{- if .Values.customConfigMaps }}
       volumes: 
-      {{- range $key, $value := .Values.customConfigMaps }}
-      - name: {{ $value.name }}-cmv
+      - name: {{ $name }}-cmv
         configMap:
           name: {{ $name }}-files
-          items:
-          - key: {{ $value.name }}
-            path: {{ $value.name }}
-      {{- end }}
+          defaultMode: 0640
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}
@@ -57,6 +53,12 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if .Values.commandOverride }}
+          args:    
+            {{  range .Values.commandOverride }}
+            - {{ . }}
+            {{ end }}
+          {{- end }}
           {{- if .Values.logger.enabled }}
           volumeMounts:
           - name: logs
@@ -65,15 +67,16 @@ spec:
           {{- if .Values.customConfigMaps }}
           volumeMounts:
           {{- range $key, $value := .Values.customConfigMaps }}
-          - name: {{ $value.name }}-cmv
-            mountPath: {{ $value.mountPath }}
+          - name: {{ $name }}-cmv
+            mountPath: {{ $value.mountPath | quote }}
+            subPath: {{ $value.name | quote }}
           {{- end }}
           {{- end }}
           envFrom:
             - secretRef:
-                name: {{ include "freeradius.fullname" . }}-envSecrets
+                name: {{ include "freeradius.fullname" . }}-envsecrets
             - configMapRef:
-                name: {{ include "freeradius.fullname" . }}-envConfigMap
+                name: {{ include "freeradius.fullname" . }}-envconfigmap
           ports:
             - containerPort: 1812
               name: radauth-port

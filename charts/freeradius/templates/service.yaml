@@ -27,34 +27,11 @@ spec:
       {{ end }}
   {{ if eq .Values.service.type "LoadBalancer"}}{{ if .Values.service.loadBalancerIP }}
   loadBalancerIP: {{ .Values.service.loadBalancerIP }}
+  externalTrafficPolicy: Local
   {{ end }}
   {{ end }}
   selector:
     {{- include "freeradius.selectorLabels" . | nindent 4 }}
-{{ if .Values.exporter.enabled }}
-{{ if eq .Values.service.type "LoadBalancer"}}
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: {{ include "freeradius.fullname" . }}-exporter
-  labels:
-    {{- include "freeradius.labels" . | nindent 4 }}
-  annotations:
-    metallb.universe.tf/allow-shared-ip: "true"
-spec:
-  type: {{ .Values.service.type }}
-  ports:
-    - name: radius-exp
-      protocol: TCP
-      port: {{ .Values.service.exp_port }}
-      targetPort: 9812
-  {{ if .Values.service.loadBalancerIP }}
-  loadBalancerIP: {{ .Values.service.loadBalancerIP }}
-  {{ end }}
-  selector:
-    {{- include "freeradius.selectorLabels" . | nindent 4 }}
-{{ end }}
-{{ end }}
+
 
 
