@@ -28,8 +28,8 @@ COPY configs/radiusd.conf /etc/freeradius/radiusd.conf
 
 COPY configs/clients.conf /etc/freeradius/clients.conf
 COPY configs/proxy.conf /etc/freeradius/proxy.conf
-COPY configs/default /etc/freeradius/site-enabled/default
-COPY configs/inner-tunnel /etc/freeradius/site-enabled/inner-tunnel
+COPY configs/default /etc/freeradius/sites-enabled/default
+COPY configs/inner-tunnel /etc/freeradius/sites-enabled/inner-tunnel
 COPY configs/linelog /etc/freeradius/mods-enabled/linelog
 COPY configs/mschap /etc/freeradius/mods-enabled/mschap
 COPY dictionary-files/dictionary.fortinet /usr/share/freeradius/dictionary.fortinet

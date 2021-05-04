@@ -139,6 +139,8 @@ echo --------------------------------------------------
 # make sure linelogs exist with appropriate permissions
 touch /var/log/freeradius/linelog-access
 touch /var/log/freeradius/linelog-accounting
+chown freerad:freerad /var/log/freeradius/linelog-access
+chown freerad:freerad /var/log/freeradius/linelog-accounting
 chmod 664 /var/log/freeradius/linelog-access
 chmod 664 /var/log/freeradius/linelog-accounting
 
