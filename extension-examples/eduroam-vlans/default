@@ -282,6 +282,9 @@ listen {
 #  Make *sure* that 'preprocess' comes before any realm if you
 #  need to setup hints for the remote radius server
 authorize {
+	if (!&session-state:) {
+		linelog
+	}
 	#
 	#  Take a User-Name, and perform some checks on it, for spaces and other
 	#  invalid characters.  If the User-Name appears invalid, reject the
@@ -613,6 +616,7 @@ preacct {
 #  Accounting.  Log the accounting data.
 #
 accounting {
+	log_accounting
 	#  Update accounting packet by adding the CUI attribute
 	#  recorded from the corresponding Access-Accept
 	#  use it only if your NAS boxes do not support CUI themselves
@@ -621,7 +625,7 @@ accounting {
 	#  Create a 'detail'ed log of the packets.
 	#  Note that accounting requests which are proxied
 	#  are also logged in the detail file.
-	detail
+	#detail
 #	daily
 
 	#  Update the wtmp file
@@ -858,6 +862,8 @@ post-auth {
 	#  Remove reply message if the response contains an EAP-Message
 	remove_reply_message_if_eap
 
+    linelog
+
 	#
 	#  Access-Reject packets are sent through the REJECT sub-section of the
 	#  post-auth section.
@@ -879,6 +885,7 @@ post-auth {
 
 		#  Remove reply message if the response contains an EAP-Message
 		remove_reply_message_if_eap
+		linelog
 	}
 
 	#
@@ -887,6 +894,7 @@ post-auth {
 	Post-Auth-Type Challenge {
 #		remove_reply_message_if_eap
 #		attr_filter.access_challenge.post-auth
+		linelog
 	}
 
 }

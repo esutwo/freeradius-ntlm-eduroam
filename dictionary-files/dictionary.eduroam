@@ -1,0 +1,14 @@
+# -*- text -*-
+#  
+# Additional Eduroam Stuff
+#
+# Open System Consultants (makers of Radiator)
+#
+# 
+VENDOR			OPENSYSTEM			9048
+
+BEGIN-VENDOR	OPENSYSTEM
+
+ATTRIBUTE		Eduroam-Proxy		0	string
+ATTRIBUTE		Eduroam-Integer		16	integer
+END-VENDOR		OPENSYSTEM
